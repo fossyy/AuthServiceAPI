@@ -3,6 +3,7 @@ package signupHandler
 import (
 	"encoding/json"
 	"github.com/fossyy/WebAppTemplate/db"
+	App "github.com/fossyy/WebAppTemplate/server"
 	"github.com/fossyy/WebAppTemplate/utils"
 	"github.com/google/uuid"
 	"net/http"
@@ -34,21 +35,19 @@ func POST(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(message)
 		return
 	}
+	password, _ := utils.HashPassword(req.Password)
 
-	hashedPassword, err := utils.HashPassword(req.Password)
-
-	newUser := db.User{
+	user := db.User{
 		UserID:   uuid.New(),
 		Username: req.Username,
 		Email:    req.Email,
-		Password: hashedPassword,
+		Password: password,
 	}
-
-	err = db.DB.Create(&newUser).Error
+	err = App.Server.Database.CreateUser(user)
 
 	if err != nil {
 		message := map[string]string{
-			"error": "Username atau Email sudah terdaftar",
+			"error": err.Error(),
 		}
 		json.NewEncoder(w).Encode(message)
 		return

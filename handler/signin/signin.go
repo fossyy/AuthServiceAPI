@@ -2,7 +2,7 @@ package signinHandler
 
 import (
 	"encoding/json"
-	"github.com/fossyy/WebAppTemplate/db"
+	App "github.com/fossyy/WebAppTemplate/server"
 	"github.com/fossyy/WebAppTemplate/session"
 	"github.com/fossyy/WebAppTemplate/utils"
 	"net/http"
@@ -25,15 +25,7 @@ func POST(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var userData db.User
-
-	if err := db.DB.Table("users").Where("email = ?", req.Email).First(&userData).Error; err != nil {
-		message := map[string]string{
-			"error": "Database error: " + err.Error(),
-		}
-		json.NewEncoder(w).Encode(message)
-		return
-	}
+	userData, _ := App.Server.Database.GetUser(req.Email)
 	if req.Email == userData.Email && utils.CheckPasswordHash(req.Password, userData.Password) {
 		token := session.MakeSession(userData.Username, userData.Email)
 		message := map[string]string{
