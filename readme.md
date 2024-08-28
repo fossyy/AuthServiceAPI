@@ -57,6 +57,24 @@ Request Header:
 Authorization: Bearer <your_access_token>
 ```
 
+## Environment Variables
+
+To run this project, you will need to add the following environment variables to your .env file [example file](https://gist.github.com/fossyy/b38e30ed0530a84fb9f97db8194b36a6)
+
+`SERVER_HOST`
+
+`SERVER_PORT`
+
+`DB_HOST`
+
+`DB_PORT`
+
+`DB_USERNAME`
+
+`DB_PASSWORD`
+
+`DB_NAME`
+
 ## Usage
 #### Build Yourself
 Follow these steps:
