@@ -1,13 +1,27 @@
 package utils
 
 import (
+	"github.com/joho/godotenv"
 	"golang.org/x/crypto/bcrypt"
 	"math/rand"
 	"net/http"
+	"os"
 	"regexp"
 	"strings"
+	"sync"
 	"time"
 )
+
+type Env struct {
+	value map[string]string
+	mu    sync.Mutex
+}
+
+var env *Env
+
+func init() {
+	env = &Env{value: map[string]string{}}
+}
 
 func ClientIP(request *http.Request) string {
 	ip := request.Header.Get("X-Real-IP")
@@ -51,8 +65,29 @@ func GenerateRandomString(length int) string {
 	}
 	return result.String()
 }
+
 func IsValidEmail(email string) bool {
 	const emailRegexPattern = `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`
 	re := regexp.MustCompile(emailRegexPattern)
 	return re.MatchString(email)
+}
+
+func Getenv(key string) string {
+	env.mu.Lock()
+	defer env.mu.Unlock()
+	if val, ok := env.value[key]; ok {
+		return val
+	}
+
+	if os.Getenv("HOSTNAME") == "" {
+		err := godotenv.Load(".env")
+		if err != nil {
+			panic("Error loading .env file: " + err.Error())
+		}
+	}
+
+	val := os.Getenv(key)
+	env.value[key] = val
+
+	return val
 }
